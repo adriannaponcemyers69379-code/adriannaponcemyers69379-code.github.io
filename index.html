@@ -2,75 +2,151 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>极简星空测试</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深空 · 境</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #000; /* 纯黑背景 */
-            color: white;
+            /* 使用径向渐变，让中心稍微亮一点，模拟星系的微光 */
+            background: radial-gradient(circle at center, #0a0a0f 0%, #000000 100%);
+            color: #f5f5f7;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            font-family: sans-serif;
+            font-family: "PingFang SC", sans-serif;
         }
+
         canvas {
             position: fixed;
             top: 0;
             left: 0;
             z-index: 1;
         }
-        h1 {
+
+        .content {
             position: relative;
             z-index: 2;
-            font-size: 3rem;
-            letter-spacing: 10px;
+            text-align: center;
+            pointer-events: none; /* 让鼠标穿透文字，不干扰背景交互 */
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 300;
+            letter-spacing: 0.8rem;
+            margin-bottom: 1rem;
+            /* 文字微光效果 */
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            animation: fadeIn 3s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="testCanvas"></canvas>
-    <h1>仰望星空</h1>
+    <canvas id="starfield"></canvas>
+
+    <div class="content">
+        <h1>万象静谧</h1>
+    </div>
 
     <script>
-        const canvas = document.getElementById('testCanvas');
+        const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let width, height;
+        let stars = [];
 
-        // 创建 50 个巨大的、白色的测试星星
-        const stars = [];
-        for (let i = 0; i < 50; i++) {
-            stars.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 5 + 3, // 很大，3-8像素
-                speed: Math.random() * 1 + 0.5
-            });
+        // 初始化画布尺寸
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
         }
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "white"; // 纯白色，不透明
+        class Star {
+            constructor() {
+                this.init();
+            }
 
-            stars.forEach(star => {
+            init() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                
+                // 核心：让大部分星星极小 (0.1-1px)，极少数大一点
+                const dist = Math.random();
+                this.size = dist > 0.9 ? Math.random() * 1.5 + 1 : Math.random() * 0.8 + 0.2;
+                
+                // 视差效果：越小的星星移动越慢
+                this.speed = this.size * 0.15; 
+                
+                // 呼吸闪烁参数
+                this.opacity = Math.random();
+                this.fadeSpeed = Math.random() * 0.02 + 0.005;
+                
+                // 颜色偏置：淡蓝、淡黄、纯白
+                const colors = ['#ffffff', '#eef2ff', '#fffbeb'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                // 缓慢向上漂移
+                this.y -= this.speed;
+                if (this.y < 0) {
+                    this.y = height;
+                    this.x = Math.random() * width;
+                }
+
+                // 闪烁逻辑
+                this.opacity += this.fadeSpeed;
+                if (this.opacity > 1 || this.opacity < 0.2) {
+                    this.fadeSpeed = -this.fadeSpeed;
+                }
+            }
+
+            draw() {
                 ctx.beginPath();
-                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity;
                 ctx.fill();
-
-                // 简单的向上移动逻辑
-                star.y -= star.speed;
-                if (star.y < 0) star.y = canvas.height;
-            });
-
-            requestAnimationFrame(draw);
+            }
         }
 
-        draw();
+        function createStarfield() {
+            stars = [];
+            // 增加星星密度，但因为它们很小，所以不会显得杂乱
+            const count = (width * height) / 4000; 
+            for (let i = 0; i < count; i++) {
+                stars.push(new Star());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            resize();
+            createStarfield();
+        });
+
+        resize();
+        createStarfield();
+        animate();
     </script>
 </body>
 </html>
