@@ -1,539 +1,283 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIM // DIGITAL ARCHITECT</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;400;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
-
+    <title>星 · 境</title>
     <style>
-        /* ================= RESET & BASE ================= */
+        /* ================= 核心基础设置 ================= */
         :root {
-            --bg-color: #030303;
-            --accent-cyan: #00f3ff;
-            --accent-violet: #bc13fe;
-            --text-main: #ffffff;
-            --text-dim: #888888;
-            --font-display: 'Syncopate', sans-serif;
-            --font-code: 'JetBrains Mono', monospace;
+            --bg-color: #000000;
+            --text-primary: #f5f5f7; /* Apple 官网常用的灰白色 */
+            --text-secondary: #86868b; /* Apple 官网常用的次级灰色 */
+            --font-stack: "SF Pro SC", "SF Pro Text", "PingFang SC", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+            --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1.0); /* iOS 风格缓动 */
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            cursor: none; /* 隐藏默认鼠标，使用自定义光标 */
         }
 
-        body {
+        html, body {
+            width: 100%;
             background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: var(--font-code);
+            color: var(--text-primary);
+            font-family: var(--font-stack);
+            -webkit-font-smoothing: antialiased; /* 字体抗锯齿，关键的高级感来源 */
+            -moz-osx-font-smoothing: grayscale;
             overflow-x: hidden;
-            width: 100vw;
-            height: 100vh;
-            overscroll-behavior: none;
+            scroll-behavior: smooth;
         }
 
-        /* ================= CUSTOM CURSOR ================= */
-        .cursor-dot,
-        .cursor-outline {
+        /* ================= 星空背景 Canvas ================= */
+        #star-canvas {
             position: fixed;
             top: 0;
             left: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            z-index: 9999;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
             pointer-events: none;
         }
 
-        .cursor-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--accent-cyan);
-        }
-
-        .cursor-outline {
-            width: 40px;
-            height: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: width 0.2s, height 0.2s, background-color 0.2s;
-        }
-
-        body:hover .cursor-outline {
-            width: 50px;
-            height: 50px;
-            background-color: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(2px);
-        }
-
-        /* ================= BACKGROUND CANVAS ================= */
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.6;
-        }
-
-        /* ================= LAYOUT & SECTIONS ================= */
+        /* ================= 布局容器 ================= */
         main {
             position: relative;
             z-index: 1;
-            width: 100%;
         }
 
         section {
-            min-height: 100vh;
+            min-height: 100vh; /* 每一屏至少占满高度 */
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 0 10%;
-            position: relative;
-        }
-
-        /* ================= HERO SECTION ================= */
-        .hero {
-            align-items: flex-start;
-        }
-
-        .glitch-wrapper {
-            position: relative;
-        }
-
-        h1 {
-            font-family: var(--font-display);
-            font-size: clamp(3rem, 8vw, 10rem);
-            font-weight: 700;
-            line-height: 0.9;
-            text-transform: uppercase;
-            letter-spacing: -2px;
-            color: transparent;
-            -webkit-text-stroke: 2px rgba(255,255,255,0.8);
-            position: relative;
-            mix-blend-mode: difference;
-            transition: all 0.5s ease;
-        }
-
-        h1::before {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            color: var(--accent-cyan);
-            opacity: 0.5;
-            z-index: -1;
-            filter: blur(10px);
-            animation: pulse 3s infinite;
-        }
-
-        .subtitle {
-            margin-top: 2rem;
-            font-size: 1.2rem;
-            color: var(--accent-cyan);
-            letter-spacing: 4px;
-            display: flex;
             align-items: center;
-            gap: 1rem;
-            opacity: 0;
-            animation: fadeIn 1s 1s forwards;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
         }
 
-        .subtitle::before {
-            content: '';
-            width: 50px;
-            height: 1px;
-            background: var(--accent-cyan);
+        /* ================= 排版与文字 ================= */
+        h1, h2, p {
+            letter-spacing: 0.05em; /* 适当的字间距增加呼吸感 */
+            opacity: 0; /* 初始隐藏，用于动画 */
+            transform: translateY(30px);
+            transition: opacity 1.5s var(--ease-apple), transform 1.5s var(--ease-apple);
         }
 
-        /* ================= MIDDLE VISUAL SECTION ================= */
-        .showcase {
-            align-items: center;
-            perspective: 1000px;
+        /* 首屏大标题 */
+        .hero-title {
+            font-size: clamp(3rem, 5vw, 5rem);
+            font-weight: 600;
+            background: linear-gradient(180deg, #fff 0%, #b0b0b0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 24px;
         }
 
-        .card-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            width: 100%;
-            max-width: 1200px;
+        .hero-subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 10px;
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 3rem;
-            backdrop-filter: blur(10px);
-            border-radius: 4px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            opacity: 0;
-            transform: translateY(50px);
+        /* 中段文字 */
+        .quote-section {
+            height: 80vh; /* 留出足够的滚动空间 */
         }
 
-        .glass-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.1);
-        }
-
-        .glass-card h3 {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: #fff;
-        }
-
-        .glass-card p {
-            font-size: 0.9rem;
+        .quote-text {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 500;
             line-height: 1.6;
-            color: var(--text-dim);
+            color: var(--text-primary);
+            max-width: 800px;
         }
 
-        .code-block {
-            font-family: 'Courier New', Courier, monospace;
-            color: var(--accent-violet);
-            font-size: 0.8rem;
-            margin-bottom: 1.5rem;
-            opacity: 0.8;
+        .quote-sub {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: var(--text-secondary);
         }
 
-        /* ================= FOOTER ================= */
-        .footer {
-            min-height: 30vh;
-            align-items: center;
-            justify-content: flex-end;
-            padding-bottom: 3rem;
+        /* 底部 */
+        footer {
+            height: 40vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 50px;
         }
 
         .footer-text {
-            font-size: clamp(2rem, 5vw, 4rem);
-            font-family: var(--font-display);
-            text-align: center;
-            background: linear-gradient(90deg, #fff, var(--text-dim));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0.2;
-            transition: opacity 0.5s;
+            font-size: 0.9rem;
+            color: #424245; /* 非常暗的灰色，极低存在感 */
+            letter-spacing: 0.2em;
         }
 
-        .footer-text:hover {
-            opacity: 1;
+        /* ================= 视觉装饰 ================= */
+        /* 极简的玻璃拟态卡片，仅用于暗示层级，不喧宾夺主 */
+        .glass-hint {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(29, 29, 31, 0.4) 0%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
+            z-index: -1;
         }
 
-        /* ================= ANIMATIONS ================= */
-        @keyframes pulse {
-            0% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(1.02); }
-            100% { opacity: 0.3; transform: scale(1); }
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        .scroll-reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease-out;
-        }
-
-        .scroll-reveal.visible {
+        /* ================= 动画状态类 ================= */
+        .visible {
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Scroll Indicator */
-        .scroll-down {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            opacity: 0;
-            animation: fadeIn 1s 2s forwards;
+        /* 鼠标悬停微交互 */
+        .hover-effect {
+            transition: opacity 0.5s ease;
+        }
+        .hover-effect:hover {
+            opacity: 0.8;
+            cursor: default;
         }
 
-        .mouse {
-            width: 20px;
-            height: 35px;
-            border: 2px solid var(--text-dim);
-            border-radius: 15px;
-            position: relative;
-        }
-
-        .wheel {
-            width: 4px;
-            height: 4px;
-            background: var(--accent-cyan);
-            border-radius: 50%;
-            position: absolute;
-            top: 6px;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: scroll 1.5s infinite;
-        }
-
-        @keyframes scroll {
-            0% { top: 6px; opacity: 1; }
-            100% { top: 20px; opacity: 0; }
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            h1 { font-size: 15vw; }
-            section { padding: 0 5%; }
-            .cursor-dot, .cursor-outline { display: none; } /* Mobile doesn't need custom cursor */
-            * { cursor: auto; }
-        }
     </style>
 </head>
 <body>
 
-    <div class="cursor-dot" data-cursor-dot></div>
-    <div class="cursor-outline" data-cursor-outline></div>
-
-    <canvas id="canvas-container"></canvas>
+    <canvas id="star-canvas"></canvas>
 
     <main>
         <section class="hero">
-            <div class="glitch-wrapper scroll-reveal">
-                <h1 data-text="UNBOUND">UNBOUND</h1>
-                <h1 data-text="REALITY" style="margin-top: -0.2em; color: white; -webkit-text-stroke: 0;">REALITY</h1>
-            </div>
-            <div class="subtitle scroll-reveal">
-                <span>SYSTEM ONLINE</span>
-                <span style="color: var(--text-dim)">//</span>
-                <span>V.2.0.25</span>
-            </div>
-
-            <div class="scroll-down">
-                <div class="mouse">
-                    <div class="wheel"></div>
-                </div>
-            </div>
+            <div class="glass-hint"></div>
+            <h1 class="hero-title hover-effect scroll-reveal">仰望。</h1>
+            <p class="hero-subtitle scroll-reveal" style="transition-delay: 0.2s;">在静谧中，听见回响。</p>
         </section>
 
-        <section class="showcase">
-            <div class="card-container">
-                <div class="glass-card scroll-reveal" style="transition-delay: 0.1s;">
-                    <div class="code-block">&lt;VISION /&gt;</div>
-                    <h3>IMMERSION</h3>
-                    <p>Blending the boundary between code and consciousness. Crafting digital experiences that feel alive, responsive, and infinitely deep.</p>
-                </div>
-
-                <div class="glass-card scroll-reveal" style="transition-delay: 0.3s;">
-                    <div class="code-block">&lt;CORE /&gt;</div>
-                    <h3>MINIMALISM</h3>
-                    <p>Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away.</p>
-                </div>
-
-                <div class="glass-card scroll-reveal" style="transition-delay: 0.5s;">
-                    <div class="code-block">&lt;STACK /&gt;</div>
-                    <h3>FUTURISM</h3>
-                    <p>Designing for the web of tomorrow. Exploring WebGL, AI integration, and the raw power of vanilla architecture.</p>
-                </div>
-            </div>
+        <section class="quote-section">
+            <p class="quote-text scroll-reveal">光年之外，<br>皆为序章。</p>
         </section>
 
-        <section class="footer">
-            <div class="scroll-reveal">
-                <p style="font-family: var(--font-code); color: var(--accent-cyan); margin-bottom: 1rem; letter-spacing: 2px;">INITIATE PROTOCOL:</p>
-                <div class="footer-text">CONNECT</div>
-            </div>
+        <section class="quote-section">
+            <p class="quote-text scroll-reveal">秩序产生美。</p>
+            <p class="quote-sub scroll-reveal" style="transition-delay: 0.2s;">繁星之下，万物归一。</p>
         </section>
+
+        <footer>
+            <p class="footer-text scroll-reveal">保持好奇</p>
+        </footer>
     </main>
 
     <script>
-        // ================= CURSOR LOGIC =================
-        const cursorDot = document.querySelector('[data-cursor-dot]');
-        const cursorOutline = document.querySelector('[data-cursor-outline]');
-
-        window.addEventListener('mousemove', function(e) {
-            const posX = e.clientX;
-            const posY = e.clientY;
-
-            // Dot follows instantly
-            cursorDot.style.left = `${posX}px`;
-            cursorDot.style.top = `${posY}px`;
-
-            // Outline follows with lag (handled by CSS transition or simple animation)
-            cursorOutline.animate({
-                left: `${posX}px`,
-                top: `${posY}px`
-            }, { duration: 500, fill: "forwards" });
+        /**
+         * 1. 极简星空逻辑 (Canvas)
+         * 追求：微弱、缓慢、不抢眼
+         */
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let stars = [];
+        
+        // 配置参数
+        const STAR_COUNT = 150; // 星星数量不多，保持克制
+        const STAR_SPEED = 0.05; // 极慢的速度
+        
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        
+        class Star {
+            constructor() {
+                this.reset(true);
+            }
+            
+            reset(initial = false) {
+                this.x = Math.random() * width;
+                this.y = initial ? Math.random() * height : height; // 初始随机，之后从底部生成
+                this.size = Math.random() * 1.5 + 0.5; // 极小的光点
+                this.speed = (Math.random() * 0.2) + 0.02; 
+                this.opacity = Math.random() * 0.5 + 0.1; // 低透明度
+                this.fadeDir = Math.random() > 0.5 ? 0.005 : -0.005;
+            }
+            
+            update() {
+                this.y -= this.speed; // 缓慢上升
+                
+                // 闪烁效果
+                this.opacity += this.fadeDir;
+                if (this.opacity >= 0.8 || this.opacity <= 0.1) {
+                    this.fadeDir = -this.fadeDir;
+                }
+                
+                // 边界检查
+                if (this.y < 0) {
+                    this.reset(false);
+                }
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+        
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < STAR_COUNT; i++) {
+                stars.push(new Star());
+            }
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        
+        window.addEventListener('resize', () => {
+            resize();
+            initStars();
         });
+        
+        resize();
+        initStars();
+        animate();
 
-        // ================= SCROLL OBSERVER =================
+        /**
+         * 2. 滚动交互 (Intersection Observer)
+         * 追求：如 iOS 设置面板般的丝滑显现
+         */
         const observerOptions = {
-            threshold: 0.1,
-            rootMargin: "0px"
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15 // 元素出现 15% 时触发
         };
 
-        const observer = new IntersectionObserver((entries) => {
+        const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
+                    // 保持 observer，支持回滚再次触发？Apple 风格通常是一次性的，
+                    // 但为了展示效果，这里我们只触发一次，更干净。
+                    observer.unobserve(entry.target); 
                 }
             });
         }, observerOptions);
 
-        document.querySelectorAll('.scroll-reveal').forEach((el) => {
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
             observer.observe(el);
-        });
-
-        // ================= PARTICLE SYSTEM CANVAS =================
-        const canvas = document.getElementById('canvas-container');
-        const ctx = canvas.getContext('2d');
-        let particlesArray;
-
-        // Resize Canvas
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let mouse = {
-            x: null,
-            y: null,
-            radius: (canvas.height/80) * (canvas.width/80)
-        }
-
-        window.addEventListener('mousemove', (event) => {
-            mouse.x = event.x;
-            mouse.y = event.y;
-        });
-
-        // Particle Class
-        class Particle {
-            constructor(x, y, directionX, directionY, size, color) {
-                this.x = x;
-                this.y = y;
-                this.directionX = directionX;
-                this.directionY = directionY;
-                this.size = size;
-                this.color = color;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                ctx.fillStyle = '#00f3ff'; // Cyan particles
-                ctx.fill();
-            }
-
-            update() {
-                // Boundary Check
-                if (this.x > canvas.width || this.x < 0) {
-                    this.directionX = -this.directionX;
-                }
-                if (this.y > canvas.height || this.y < 0) {
-                    this.directionY = -this.directionY;
-                }
-
-                // Mouse Interaction (Collision Detection)
-                let dx = mouse.x - this.x;
-                let dy = mouse.y - this.y;
-                let distance = Math.sqrt(dx*dx + dy*dy);
-
-                if (distance < mouse.radius + this.size) {
-                    if (mouse.x < this.x && this.x < canvas.width - this.size * 10) {
-                        this.x += 5;
-                    }
-                    if (mouse.x > this.x && this.x > this.size * 10) {
-                        this.x -= 5;
-                    }
-                    if (mouse.y < this.y && this.y < canvas.height - this.size * 10) {
-                        this.y += 5;
-                    }
-                    if (mouse.y > this.y && this.y > this.size * 10) {
-                        this.y -= 5;
-                    }
-                }
-
-                this.x += this.directionX;
-                this.y += this.directionY;
-                this.draw();
-            }
-        }
-
-        function init() {
-            particlesArray = [];
-            // Number of particles dependent on screen size
-            let numberOfParticles = (canvas.height * canvas.width) / 9000;
-            for (let i = 0; i < numberOfParticles; i++) {
-                let size = (Math.random() * 2) + 1;
-                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
-                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
-                let directionX = (Math.random() * 1) - 0.5; // Speed
-                let directionY = (Math.random() * 1) - 0.5;
-                let color = '#00f3ff';
-
-                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
-            }
-        }
-
-        function connect() {
-            let opacityValue = 1;
-            for (let a = 0; a < particlesArray.length; a++) {
-                for (let b = a; b < particlesArray.length; b++) {
-                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) + 
-                                   ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
-                    
-                    if (distance < (canvas.width/7) * (canvas.height/7)) {
-                        opacityValue = 1 - (distance/20000);
-                        ctx.strokeStyle = 'rgba(0, 243, 255,' + opacityValue + ')'; // Cyan lines
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, innerWidth, innerHeight);
-            
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-            }
-            connect();
-        }
-
-        window.addEventListener('resize', () => {
-            canvas.width = innerWidth;
-            canvas.height = innerHeight;
-            mouse.radius = ((canvas.height/80) * (canvas.height/80));
-            init();
-        });
-
-        window.addEventListener('mouseout', () => {
-            mouse.x = undefined;
-            mouse.y = undefined;
-        })
-
-        init();
-        animate();
-
-        // Title Glitch Effect on Hover (Extra Polish)
-        const title = document.querySelector('h1');
-        title.addEventListener('mouseover', () => {
-            title.style.textShadow = "2px 2px 0px #ff00ff, -2px -2px 0px #00f3ff";
-        });
-        title.addEventListener('mouseleave', () => {
-            title.style.textShadow = "none";
         });
 
     </script>
