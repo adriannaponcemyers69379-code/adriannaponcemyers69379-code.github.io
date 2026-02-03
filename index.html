@@ -2,284 +2,75 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星 · 境</title>
+    <title>极简星空测试</title>
     <style>
-        /* ================= 核心基础设置 ================= */
-        :root {
-            --bg-color: #000000;
-            --text-primary: #f5f5f7; /* Apple 官网常用的灰白色 */
-            --text-secondary: #86868b; /* Apple 官网常用的次级灰色 */
-            --font-stack: "SF Pro SC", "SF Pro Text", "PingFang SC", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-            --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1.0); /* iOS 风格缓动 */
-        }
-
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            background-color: #000; /* 纯黑背景 */
+            color: white;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
         }
-
-        html, body {
-            width: 100%;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: var(--font-stack);
-            -webkit-font-smoothing: antialiased; /* 字体抗锯齿，关键的高级感来源 */
-            -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-        }
-
-        /* ================= 星空背景 Canvas ================= */
-        #star-canvas {
+        canvas {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* ================= 布局容器 ================= */
-        main {
-            position: relative;
             z-index: 1;
         }
-
-        section {
-            min-height: 100vh; /* 每一屏至少占满高度 */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 20px;
+        h1 {
             position: relative;
+            z-index: 2;
+            font-size: 3rem;
+            letter-spacing: 10px;
         }
-
-        /* ================= 排版与文字 ================= */
-        h1, h2, p {
-            letter-spacing: 0.05em; /* 适当的字间距增加呼吸感 */
-            opacity: 0; /* 初始隐藏，用于动画 */
-            transform: translateY(30px);
-            transition: opacity 1.5s var(--ease-apple), transform 1.5s var(--ease-apple);
-        }
-
-        /* 首屏大标题 */
-        .hero-title {
-            font-size: clamp(3rem, 5vw, 5rem);
-            font-weight: 600;
-            background: linear-gradient(180deg, #fff 0%, #b0b0b0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 24px;
-        }
-
-        .hero-subtitle {
-            font-size: clamp(1rem, 2vw, 1.5rem);
-            color: var(--text-secondary);
-            font-weight: 400;
-            margin-top: 10px;
-        }
-
-        /* 中段文字 */
-        .quote-section {
-            height: 80vh; /* 留出足够的滚动空间 */
-        }
-
-        .quote-text {
-            font-size: clamp(1.5rem, 3vw, 2.5rem);
-            font-weight: 500;
-            line-height: 1.6;
-            color: var(--text-primary);
-            max-width: 800px;
-        }
-
-        .quote-sub {
-            margin-top: 20px;
-            font-size: 1rem;
-            color: var(--text-secondary);
-        }
-
-        /* 底部 */
-        footer {
-            height: 40vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            padding-bottom: 50px;
-        }
-
-        .footer-text {
-            font-size: 0.9rem;
-            color: #424245; /* 非常暗的灰色，极低存在感 */
-            letter-spacing: 0.2em;
-        }
-
-        /* ================= 视觉装饰 ================= */
-        /* 极简的玻璃拟态卡片，仅用于暗示层级，不喧宾夺主 */
-        .glass-hint {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, rgba(29, 29, 31, 0.4) 0%, rgba(0,0,0,0) 70%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        /* ================= 动画状态类 ================= */
-        .visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* 鼠标悬停微交互 */
-        .hover-effect {
-            transition: opacity 0.5s ease;
-        }
-        .hover-effect:hover {
-            opacity: 0.8;
-            cursor: default;
-        }
-
     </style>
 </head>
 <body>
 
-    <canvas id="star-canvas"></canvas>
-
-    <main>
-        <section class="hero">
-            <div class="glass-hint"></div>
-            <h1 class="hero-title hover-effect scroll-reveal">仰望。</h1>
-            <p class="hero-subtitle scroll-reveal" style="transition-delay: 0.2s;">在静谧中，听见回响。</p>
-        </section>
-
-        <section class="quote-section">
-            <p class="quote-text scroll-reveal">光年之外，<br>皆为序章。</p>
-        </section>
-
-        <section class="quote-section">
-            <p class="quote-text scroll-reveal">秩序产生美。</p>
-            <p class="quote-sub scroll-reveal" style="transition-delay: 0.2s;">繁星之下，万物归一。</p>
-        </section>
-
-        <footer>
-            <p class="footer-text scroll-reveal">保持好奇</p>
-        </footer>
-    </main>
+    <canvas id="testCanvas"></canvas>
+    <h1>仰望星空</h1>
 
     <script>
-        /**
-         * 1. 极简星空逻辑 (Canvas)
-         * 追求：微弱、缓慢、不抢眼
-         */
-        const canvas = document.getElementById('star-canvas');
+        const canvas = document.getElementById('testCanvas');
         const ctx = canvas.getContext('2d');
-        
-        let width, height;
-        let stars = [];
-        
-        // 配置参数
-        const STAR_COUNT = 150; // 星星数量不多，保持克制
-        const STAR_SPEED = 0.05; // 极慢的速度
-        
-        function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // 创建 50 个巨大的、白色的测试星星
+        const stars = [];
+        for (let i = 0; i < 50; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 5 + 3, // 很大，3-8像素
+                speed: Math.random() * 1 + 0.5
+            });
         }
-        
-        class Star {
-            constructor() {
-                this.reset(true);
-            }
-            
-            reset(initial = false) {
-                this.x = Math.random() * width;
-                this.y = initial ? Math.random() * height : height; // 初始随机，之后从底部生成
-                this.size = Math.random() * 1.5 + 0.5; // 极小的光点
-                this.speed = (Math.random() * 0.2) + 0.02; 
-                this.opacity = Math.random() * 0.5 + 0.1; // 低透明度
-                this.fadeDir = Math.random() > 0.5 ? 0.005 : -0.005;
-            }
-            
-            update() {
-                this.y -= this.speed; // 缓慢上升
-                
-                // 闪烁效果
-                this.opacity += this.fadeDir;
-                if (this.opacity >= 0.8 || this.opacity <= 0.1) {
-                    this.fadeDir = -this.fadeDir;
-                }
-                
-                // 边界检查
-                if (this.y < 0) {
-                    this.reset(false);
-                }
-            }
-            
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.fill();
-            }
-        }
-        
-        function initStars() {
-            stars = [];
-            for (let i = 0; i < STAR_COUNT; i++) {
-                stars.push(new Star());
-            }
-        }
-        
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "white"; // 纯白色，不透明
+
             stars.forEach(star => {
-                star.update();
-                star.draw();
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 简单的向上移动逻辑
+                star.y -= star.speed;
+                if (star.y < 0) star.y = canvas.height;
             });
-            requestAnimationFrame(animate);
+
+            requestAnimationFrame(draw);
         }
-        
-        window.addEventListener('resize', () => {
-            resize();
-            initStars();
-        });
-        
-        resize();
-        initStars();
-        animate();
 
-        /**
-         * 2. 滚动交互 (Intersection Observer)
-         * 追求：如 iOS 设置面板般的丝滑显现
-         */
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.15 // 元素出现 15% 时触发
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    // 保持 observer，支持回滚再次触发？Apple 风格通常是一次性的，
-                    // 但为了展示效果，这里我们只触发一次，更干净。
-                    observer.unobserve(entry.target); 
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.scroll-reveal').forEach(el => {
-            observer.observe(el);
-        });
-
+        draw();
     </script>
 </body>
 </html>
