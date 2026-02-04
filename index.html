@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>深空 · 境</title>
+    <title>UNIVERSE // TIM</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            /* 使用径向渐变，让中心稍微亮一点，模拟星系的微光 */
-            background: radial-gradient(circle at center, #0a0a0f 0%, #000000 100%);
-            color: #f5f5f7;
+            /* 宇宙深处的蓝紫色渐变，营造星云感 */
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            height: 100vh;
             overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro SC", "PingFang SC", sans-serif;
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            font-family: "PingFang SC", sans-serif;
         }
 
         canvas {
@@ -26,126 +26,151 @@
             z-index: 1;
         }
 
-        .content {
+        /* 文字层 */
+        .container {
             position: relative;
-            z-index: 2;
+            z-index: 10;
             text-align: center;
-            pointer-events: none; /* 让鼠标穿透文字，不干扰背景交互 */
+            pointer-events: none; /* 让鼠标穿透，不影响视觉体验 */
+            mix-blend-mode: overlay; /* 让文字和星空背景融合 */
         }
 
         h1 {
-            font-size: clamp(2rem, 5vw, 4rem);
-            font-weight: 300;
-            letter-spacing: 0.8rem;
-            margin-bottom: 1rem;
-            /* 文字微光效果 */
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-            opacity: 0;
-            animation: fadeIn 3s ease forwards;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 200;
+            letter-spacing: 1rem;
+            margin: 0;
+            text-transform: uppercase;
+            /* 极简发光 */
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: breathe 4s ease-in-out infinite;
         }
 
-        @keyframes fadeIn {
-            to { opacity: 1; }
+        p {
+            font-size: 1rem;
+            letter-spacing: 0.5rem;
+            margin-top: 20px;
+            opacity: 0.6;
+            font-weight: 300;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.8; text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+            50% { opacity: 1; text-shadow: 0 0 40px rgba(255,255,255,0.6); }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="starfield"></canvas>
+    <canvas id="space"></canvas>
 
-    <div class="content">
-        <h1>万象静谧</h1>
+    <div class="container">
+        <h1>无尽</h1>
+        <p>EXPLORATION</p>
     </div>
 
     <script>
-        const canvas = document.getElementById('starfield');
+        const canvas = document.getElementById('space');
         const ctx = canvas.getContext('2d');
 
         let width, height;
         let stars = [];
-
-        // 初始化画布尺寸
+        
+        // 【核心参数】在这里调整宇宙的感觉
+        const STAR_COUNT = 1500; // 星星数量：越多越像银河
+        const SPEED = 0.05;      // 飞行速度：越小越深邃，越大越像跃迁
+        
+        // 调整画布尺寸
         function resize() {
             width = window.innerWidth;
             height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
+            initStars(); // 改变大小时重新生成，防止变形
         }
 
         class Star {
             constructor() {
-                this.init();
+                this.reset();
             }
 
-            init() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
+            reset() {
+                // x, y 坐标：分布在中心点周围
+                this.x = (Math.random() * width - width / 2) * 2; 
+                this.y = (Math.random() * height - height / 2) * 2;
+                // z 坐标：代表深度，越远数值越大
+                this.z = Math.random() * width; 
                 
-                // 核心：让大部分星星极小 (0.1-1px)，极少数大一点
-                const dist = Math.random();
-                this.size = dist > 0.9 ? Math.random() * 1.5 + 1 : Math.random() * 0.8 + 0.2;
-                
-                // 视差效果：越小的星星移动越慢
-                this.speed = this.size * 0.15; 
-                
-                // 呼吸闪烁参数
-                this.opacity = Math.random();
-                this.fadeSpeed = Math.random() * 0.02 + 0.005;
-                
-                // 颜色偏置：淡蓝、淡黄、纯白
-                const colors = ['#ffffff', '#eef2ff', '#fffbeb'];
-                this.color = colors[Math.floor(Math.random() * colors.length)];
+                // 颜色随机：大部分是白，混入少量蓝/紫，模拟真实星系
+                const colorType = Math.random();
+                if(colorType > 0.9) this.color = '#a0c4ff'; // 蓝超巨星
+                else if(colorType > 0.8) this.color = '#e2b3ff'; // 紫色星云光
+                else this.color = '#ffffff'; // 普通恒星
             }
 
             update() {
-                // 缓慢向上漂移
-                this.y -= this.speed;
-                if (this.y < 0) {
-                    this.y = height;
-                    this.x = Math.random() * width;
-                }
+                // 核心 3D 逻辑：Z轴减小，星星向屏幕飞来
+                this.z -= width * SPEED * 0.02; // 移动速度
 
-                // 闪烁逻辑
-                this.opacity += this.fadeSpeed;
-                if (this.opacity > 1 || this.opacity < 0.2) {
-                    this.fadeSpeed = -this.fadeSpeed;
+                // 如果飞过头了（跑到屏幕后面），重置到远处
+                if (this.z <= 0) {
+                    this.reset();
+                    this.z = width; // 重置到最远处
                 }
             }
 
             draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = this.opacity;
-                ctx.fill();
+                // 3D 投影公式：将 3D 坐标 (x,y,z) 转换成 2D 屏幕坐标 (sx, sy)
+                let x = this.x / this.z * width;
+                let y = this.y / this.z * height;
+
+                // 转换后的坐标是以左上角为原点，需要移到屏幕中心
+                let sx = x + width / 2;
+                let sy = y + height / 2;
+
+                // 计算星星大小：越近越大 (z越小，size越大)
+                let size = (1 - this.z / width) * 2.5;
+                
+                // 简单的视锥裁剪：只画在屏幕内的星星
+                if (sx >= 0 && sx <= width && sy >= 0 && sy <= height) {
+                    ctx.beginPath();
+                    ctx.fillStyle = this.color;
+                    
+                    // 距离越近，透明度越高
+                    let alpha = (1 - this.z / width);
+                    ctx.globalAlpha = alpha;
+                    
+                    ctx.arc(sx, sy, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
 
-        function createStarfield() {
+        function initStars() {
             stars = [];
-            // 增加星星密度，但因为它们很小，所以不会显得杂乱
-            const count = (width * height) / 4000; 
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < STAR_COUNT; i++) {
                 stars.push(new Star());
             }
         }
 
         function animate() {
-            ctx.clearRect(0, 0, width, height);
+            // 使用半透明黑色填充，形成极短的“拖尾效果”，增加速度感
+            // 如果想要纯净的点，把 0.2 改成 1
+            ctx.fillStyle = "rgba(10, 10, 15, 0.3)"; 
+            ctx.fillRect(0, 0, width, height);
+            
             stars.forEach(star => {
                 star.update();
                 star.draw();
             });
+            
             requestAnimationFrame(animate);
         }
 
-        window.addEventListener('resize', () => {
-            resize();
-            createStarfield();
-        });
-
+        window.addEventListener('resize', resize);
+        
+        // 启动
         resize();
-        createStarfield();
         animate();
     </script>
 </body>
